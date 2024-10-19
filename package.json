@@ -1,0 +1,21 @@
+{
+  "name": "bun-docs-chat",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.3.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@langchain/community": "^0.3.6",
+    "@langchain/core": "^0.3.13",
+    "@langchain/ollama": "^0.1.0",
+    "@langchain/textsplitters": "^0.1.0",
+    "@libsql/client": "^0.14.0",
+    "langchain": "^0.3.2",
+    "pdf-parse": "^1.1.1"
+  }
+}
