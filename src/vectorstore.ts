@@ -6,7 +6,7 @@ import type { Document } from 'langchain/document'
 const embeddings = new OllamaEmbeddings({ model: 'nomic-embed-text' })
 
 const libsqlClient = createClient({
-  url: 'file:../vector-store.db',
+  url: 'file:./vector-store.db',
 })
 
 libsqlClient.execute(
