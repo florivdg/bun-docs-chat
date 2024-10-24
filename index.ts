@@ -1,13 +1,21 @@
 import { load } from './src/loader'
 import { split } from './src/splitter'
-import { addDocuments } from './src/vectorstore'
+import { addDocuments, search } from './src/vectorstore'
+import { ask } from './src/chat'
 
-const start = performance.now()
-const docs = await load('files/example.pdf')
-console.log(`Loaded ${docs.length} documents`)
+const filePath = 'files/brexit.pdf'
+
+const docs = await load(filePath)
 const chunks = await split(docs)
-console.log(`Split into ${chunks.length} chunks`)
-const result = await addDocuments(chunks)
-const end = performance.now()
+const fileID = await addDocuments(filePath, chunks)
 
-console.log(result, end - start, 'ms')
+const searchResult = await search(
+  'How many members has the settlement board?',
+  10,
+  (doc) => doc.metadata.file_id === fileID,
+)
+
+const relevantChunks = searchResult.map((result) => result[0].pageContent)
+const answer = await ask('How many members has the settlement board?', relevantChunks)
+
+console.log(answer)
