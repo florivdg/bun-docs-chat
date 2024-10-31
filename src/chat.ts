@@ -2,13 +2,21 @@ import type { MessageContent } from '@langchain/core/messages'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { ChatOllama } from '@langchain/ollama'
 
+// Initialize Ollama chat model with specific configuration
 const llm = new ChatOllama({
   model: 'llama3.2',
   temperature: 1,
   maxRetries: 2,
 })
 
+/**
+ * Queries the LLM with a question against provided document chunks
+ * @param question - The user's question to answer
+ * @param chunks - Array of document text chunks to search for answers
+ * @returns Promise containing the LLM's response content
+ */
 export async function ask(question: string, chunks: string[]): Promise<MessageContent> {
+  // Create prompt template with system and user messages
   const prompt = ChatPromptTemplate.fromMessages([
     [
       'system',
@@ -17,9 +25,10 @@ export async function ask(question: string, chunks: string[]): Promise<MessageCo
     ['human', '{question}'],
   ])
 
+  // Execute the chain by combining prompt template with LLM
   const chain = prompt.pipe(llm)
   const outcome = await chain.invoke({
-    documents: chunks.join('\n\n'),
+    documents: chunks.join('\n\n'), // Combine document chunks with two newlines
     question,
   })
 
