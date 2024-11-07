@@ -34,7 +34,9 @@ export async function initVectorStore() {
     'CREATE TABLE IF NOT EXISTS vecs (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, metadata TEXT, embeddings F32_BLOB(768));',
   )
 
-  libsqlClient.execute('CREATE INDEX IF NOT EXISTS idx_vecs_embeddings ON vecs(libsql_vector_idx(embeddings));')
+  libsqlClient.execute(
+    "CREATE INDEX IF NOT EXISTS idx_vecs_embeddings ON vecs(libsql_vector_idx(embeddings, 'compress_neighbors=float8', 'max_neighbors=20'));",
+  )
 
   libsqlClient.execute(
     'CREATE TABLE IF NOT EXISTS files (id INTEGER PRIMARY KEY AUTOINCREMENT, filename TEXT, path TEXT);',
