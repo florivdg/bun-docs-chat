@@ -175,3 +175,5 @@ dist
 .DS_Store
 
 vector-store.db
+/files
+!/files/brexit.pdf
