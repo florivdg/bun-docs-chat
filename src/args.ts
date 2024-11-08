@@ -1,40 +1,30 @@
 /**
- * Helper function to get file path from CLI arguments.
+ * Retrieves the file path from command line arguments.
+ * Looks for the -f or --file flag and returns the following argument as the file path.
+ * Throws an error if the file flag or file path is not provided.
  */
 function getFilePathFromArgs(): string {
-  const args = process.argv.slice(2) // Remove first two elements (node and script path)
+  // Get command line arguments, ignoring the first two elements (node and script path)
+  const args = process.argv.slice(2)
 
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '-f' || args[i] === '--file') {
-      const filePath = args[i + 1]
-      if (!filePath) {
-        throw new Error('File path is required after -f or --file flag')
-      }
-      return filePath
-    }
+  const fileFlagIndex = args.findIndex((arg) => arg === '-f' || arg === '--file')
+
+  if (fileFlagIndex !== -1 && args[fileFlagIndex + 1]) {
+    return args[fileFlagIndex + 1]
   }
 
   throw new Error('Please provide a file path using -f or --file flag')
 }
 
 /**
- * Parses the CLI arguments and returns relevant information.
+ * Parses the command line arguments and returns relevant information.
+ * Handles errors gracefully by logging an appropriate message and exiting the process.
  */
 export function parseArgs() {
-  // Get and validate file path
-  let filePath: string
   try {
-    filePath = getFilePathFromArgs()
+    return { filePath: getFilePathFromArgs() }
   } catch (error) {
-    if (error instanceof Error) {
-      console.error(error.message)
-    } else {
-      console.error('An unknown error occurred')
-    }
+    console.error(error instanceof Error ? error.message : 'An unknown error occurred')
     process.exit(1)
-  }
-
-  return {
-    filePath,
   }
 }
