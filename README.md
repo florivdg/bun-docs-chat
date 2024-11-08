@@ -1,15 +1,28 @@
-# bun-docs-chat
+# Bun Docs Chats
 
-To install dependencies:
+Chat with PDF files locally, fully private and secure with Ollama.
+
+## Setup
+
+1. Install dependencies:
 
 ```bash
 bun install
 ```
 
+2. Start [Ollama](https://ollama.com/)
+
+3. Pull chat and embeddings models:
+
+```bash
+ollama pull llama3.2
+ollama pull nomic-embed-text
+```
+
+## Usage
+
 To run:
 
 ```bash
-bun run index.ts
+bun run index.ts -f files/brexit.pdf
 ```
-
-This project was created using `bun init` in bun v1.1.31. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
