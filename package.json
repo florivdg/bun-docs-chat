@@ -10,9 +10,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@langchain/community": "^0.3.11",
+    "@langchain/community": "^0.3.12",
     "@langchain/core": "^0.3.17",
-    "@langchain/ollama": "^0.1.1",
+    "@langchain/ollama": "^0.1.2",
     "@langchain/textsplitters": "^0.1.0",
     "@libsql/client": "^0.14.0",
     "langchain": "^0.3.5",
