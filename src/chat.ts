@@ -1,4 +1,4 @@
-import type { BaseMessage } from '@langchain/core/messages'
+import { AIMessage, HumanMessage, type BaseMessage } from '@langchain/core/messages'
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever'
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents'
 import { createRetrievalChain } from 'langchain/chains/retrieval'
@@ -19,7 +19,7 @@ const llm = new ChatOllama({
  * @param chatHistory The messages that were exchanged in the chat so far.
  * @param fileId The ID of the file to retrieve the context from.
  */
-export async function chat(input: string, chatHistory: BaseMessage[], fileId: FileId): Promise<string> {
+async function chat(input: string, chatHistory: BaseMessage[], fileId: FileId) {
   // Instantiate a retriever with a filter to only retrieve documents from the specified file
   const retriever = vectorStore.asRetriever({ k: 10, filter: (doc) => doc.metadata.file_id === fileId })
 
@@ -62,30 +62,45 @@ export async function chat(input: string, chatHistory: BaseMessage[], fileId: Fi
     combineDocsChain: questionAnswerChain,
   })
 
-  // Collect the answer from the streaming chat model
-  const output: Record<string, any> = {}
-  let currentKey: string | null = null
-
-  // Process the chat in chunks
-  for await (const chunk of await ragChain.stream({
+  return ragChain.stream({
     input,
     chat_history: chatHistory,
-  })) {
-    for (const key of Object.keys(chunk)) {
-      if (output[key] === undefined) {
-        output[key] = chunk[key]
-      } else {
-        output[key] += chunk[key]
-      }
+  })
+}
 
-      if (key !== currentKey) {
-        console.log(`\n\n${key}: ${JSON.stringify(chunk[key])}`)
-      } else {
-        console.log(chunk[key])
+/**
+ * Start the chat interaction with the user.
+ * @param fileId The ID of the file containing the relevant information.
+ */
+export async function startChat(fileId: FileId) {
+  // Initialize the chat history
+  const chatHistory: BaseMessage[] = []
+
+  // Print the initial prompt
+  const prompt = '👤: '
+  process.stdout.write(prompt)
+
+  // Read line-by-line from the console
+  for await (const line of console) {
+    // Trim the input and remove any leading/trailing whitespace
+    const input = line.trim()
+
+    // Add the user input to the chat history
+    chatHistory.push(new HumanMessage(input))
+
+    // Call the chat function and print the assistant's response
+    const chatResponse = chat(input, chatHistory, fileId)
+    process.stdout.write('🤖: ')
+    let answer = ''
+    for await (const chunk of await chatResponse) {
+      if (chunk['answer']) {
+        answer += chunk.answer
+        process.stdout.write(chunk.answer)
       }
-      currentKey = key
     }
-  }
+    process.stdout.write(`\n${prompt}`)
 
-  return output.answer
+    // Add the assistant's response to the chat history
+    chatHistory.push(new AIMessage(answer))
+  }
 }
