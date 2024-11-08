@@ -12,7 +12,7 @@ const libsqlClient = createClient({
 })
 
 // Initializes a new instance of the `LibSQLVectorStore` with the provided embeddings and configuration.
-const vectorStore = new LibSQLVectorStore(embeddings, {
+export const vectorStore = new LibSQLVectorStore(embeddings, {
   db: libsqlClient,
   table: 'vecs',
   column: 'embeddings',
@@ -29,7 +29,7 @@ const vectorStore = new LibSQLVectorStore(embeddings, {
  *
  * @returns A promise that resolves when the initialization is complete.
  */
-export async function initVectorStore() {
+async function initVectorStore() {
   libsqlClient.execute(
     'CREATE TABLE IF NOT EXISTS vecs (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, metadata TEXT, embeddings F32_BLOB(768));',
   )
@@ -83,16 +83,4 @@ export async function addDocuments(filePath: string, docs: Document[]): Promise<
   console.log(`Added ${vecsIds.length} vectors for file ${fileName}`)
 
   return rows[0].id as FileId
-}
-
-/**
- * Searches the vector store for documents similar to the specified query.
- *
- * @param query - The query to search for.
- * @param limit - The maximum number of results to return.
- * @param filter - An optional filter function to apply to the search results.
- * @returns A promise that resolves with the search results.
- */
-export async function search(query: string, limit: number, filter?: ((doc: Document) => boolean) | undefined) {
-  return await vectorStore.similaritySearchWithScore(query, limit, filter)
 }
