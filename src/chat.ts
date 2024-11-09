@@ -51,7 +51,7 @@ async function chat(input: string, chatHistory: BaseMessage[], fileId: FileId) {
   ])
 
   // Create a chain for combining the documents
-  const questionAnswerChain = await createStuffDocumentsChain({
+  const combineDocsChain = await createStuffDocumentsChain({
     llm,
     prompt: qaPrompt,
   })
@@ -59,7 +59,7 @@ async function chat(input: string, chatHistory: BaseMessage[], fileId: FileId) {
   // Create a chain for the retrieval task
   const ragChain = await createRetrievalChain({
     retriever: historyAwareRetriever,
-    combineDocsChain: questionAnswerChain,
+    combineDocsChain,
   })
 
   return ragChain.stream({
