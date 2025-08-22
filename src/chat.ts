@@ -20,8 +20,13 @@ const llm = new ChatOllama({
  * @param fileId The ID of the file to retrieve the context from.
  */
 async function chat(input: string, chatHistory: BaseMessage[], fileId: FileId) {
-  // Instantiate a retriever with a filter to only retrieve documents from the specified file
-  const retriever = vectorStore.asRetriever({ k: 10, filter: (doc) => doc.metadata.file_id === fileId })
+  // Use new WhereCondition-based filter (FilterType) to constrain by file_id
+  const retriever = vectorStore.asRetriever({
+    k: 10,
+    filter: {
+      file_id: { operator: '=', value: fileId },
+    },
+  })
 
   // Define the prompt for rephrasing the user question
   const rephraseSystemPrompt = `Given a chat history and the latest user question which might reference context in the chat history, formulate a standalone question which can be understood without the chat history. Do NOT answer the question just reformulate it if needed and otherwise return it as is.`

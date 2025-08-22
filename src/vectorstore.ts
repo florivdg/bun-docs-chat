@@ -12,7 +12,12 @@ const libsqlClient = createClient({
 })
 
 // Initializes a new instance of the `LibSQLVectorStore` with the provided embeddings and configuration.
-export const vectorStore = new LibSQLVectorStore(embeddings, {
+// Define the metadata shape stored alongside each chunk.
+export interface ChunkMetadata {
+  file_id: number
+}
+
+export const vectorStore = new LibSQLVectorStore<ChunkMetadata>(embeddings, {
   db: libsqlClient,
   table: 'vecs',
   column: 'embeddings',
@@ -49,7 +54,7 @@ async function initVectorStore() {
 await initVectorStore()
 
 // Defines a type alias for the file ID.
-export type FileId = string
+export type FileId = number
 
 /**
  * Adds the specified documents to the vector store.
@@ -69,18 +74,19 @@ export async function addDocuments(filePath: string, docs: Document[]): Promise<
 
   if (files.length > 0) {
     console.log('File already exists with ID:', files[0].id)
-    return files[0].id as FileId
+    return Number(files[0].id) as FileId
   }
 
   const { rows } = await libsqlClient.execute({
     sql: 'INSERT INTO files (filename, path) VALUES (?, ?) RETURNING id;',
     args: [fileName, filePath],
   })
-  const docsWithMetadata = docs.map((doc) => ({ ...doc, metadata: { file_id: rows[0].id } }))
+  const insertedId = Number(rows[0].id)
+  const docsWithMetadata = docs.map((doc) => ({ ...doc, metadata: { file_id: insertedId } }))
 
   const vecsIds = await vectorStore.addDocuments(docsWithMetadata)
 
   console.log(`Added ${vecsIds.length} vectors for file ${fileName}`)
 
-  return rows[0].id as FileId
+  return insertedId as FileId
 }
