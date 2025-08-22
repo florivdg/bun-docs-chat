@@ -4,7 +4,7 @@ import { createClient } from '@libsql/client'
 import type { Document } from 'langchain/document'
 
 // Initializes a new instance of the OllamaEmbeddings class with the specified model.
-const embeddings = new OllamaEmbeddings({ model: 'nomic-embed-text' })
+const embeddings = new OllamaEmbeddings({ model: 'dengcao/Qwen3-Embedding-0.6B:Q8_0' })
 
 // Creates a client instance for interacting with the SQLite database.
 const libsqlClient = createClient({
@@ -31,7 +31,7 @@ export const vectorStore = new LibSQLVectorStore(embeddings, {
  */
 async function initVectorStore() {
   libsqlClient.execute(
-    'CREATE TABLE IF NOT EXISTS vecs (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, metadata TEXT, embeddings F32_BLOB(768));',
+    'CREATE TABLE IF NOT EXISTS vecs (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, metadata TEXT, embeddings F32_BLOB(1024));',
   )
 
   libsqlClient.execute(
