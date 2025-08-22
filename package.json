@@ -3,19 +3,19 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "^1.1.13",
-    "prettier": "^3.3.3"
+    "@types/bun": "^1.2.20",
+    "prettier": "^3.6.2"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@langchain/community": "^0.3.12",
-    "@langchain/core": "^0.3.17",
-    "@langchain/ollama": "^0.1.2",
+    "@langchain/community": "^0.3.53",
+    "@langchain/core": "^0.3.72",
+    "@langchain/ollama": "^0.2.3",
     "@langchain/textsplitters": "^0.1.0",
-    "@libsql/client": "^0.14.0",
-    "langchain": "^0.3.5",
+    "@libsql/client": "^0.15.12",
+    "langchain": "^0.3.31",
     "pdf-parse": "^1.1.1"
   }
 }
