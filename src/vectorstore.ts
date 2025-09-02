@@ -84,9 +84,36 @@ export async function addDocuments(filePath: string, docs: Document[]): Promise<
   const insertedId = Number(rows[0].id)
   const docsWithMetadata = docs.map((doc) => ({ ...doc, metadata: { file_id: insertedId } }))
 
-  const vecsIds = await vectorStore.addDocuments(docsWithMetadata)
+  // Embed and insert in batches with a simple progress bar
+  const total = docsWithMetadata.length
+  const batchSize = 32
+  let processed = 0
 
-  console.log(`Added ${vecsIds.length} vectors for file ${fileName}`)
+  function renderProgress(done: number, all: number) {
+    const width = 24
+    const ratio = all === 0 ? 1 : Math.min(1, done / all)
+    const filled = Math.round(width * ratio)
+    const bar = '█'.repeat(filled) + '░'.repeat(width - filled)
+    const pct = Math.round(ratio * 100)
+    const line = `Embedding ${done}/${all} [${bar}] ${pct}%\r`
+    process.stdout.write(line)
+  }
+
+  renderProgress(0, total)
+  const allIds: string[] = []
+  for (let i = 0; i < total; i += batchSize) {
+    const batchDocs = docsWithMetadata.slice(i, i + batchSize)
+    const texts = batchDocs.map((d) => d.pageContent)
+    const vectors = await embeddings.embedDocuments(texts)
+    // Insert vectors with their docs
+    const ids = await vectorStore.addVectors(vectors, batchDocs)
+    allIds.push(...ids)
+    processed = Math.min(total, i + batchSize)
+    renderProgress(processed, total)
+  }
+  process.stdout.write('\n')
+
+  console.log(`Added ${allIds.length} vectors for file ${fileName}`)
 
   return insertedId as FileId
 }
