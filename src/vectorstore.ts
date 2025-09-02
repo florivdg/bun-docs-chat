@@ -101,10 +101,13 @@ export async function addDocuments(filePath: string, docs: Document[]): Promise<
 
   renderProgress(0, total)
   const allIds: string[] = []
+  let embedMsTotal = 0
   for (let i = 0; i < total; i += batchSize) {
     const batchDocs = docsWithMetadata.slice(i, i + batchSize)
     const texts = batchDocs.map((d) => d.pageContent)
+    const t0 = performance.now()
     const vectors = await embeddings.embedDocuments(texts)
+    embedMsTotal += performance.now() - t0
     // Insert vectors with their docs
     const ids = await vectorStore.addVectors(vectors, batchDocs)
     allIds.push(...ids)
@@ -113,6 +116,7 @@ export async function addDocuments(filePath: string, docs: Document[]): Promise<
   }
   process.stdout.write('\n')
 
+  console.log(`Embedding time for ${fileName}: ${(embedMsTotal / 1000).toFixed(2)}s`)
   console.log(`Added ${allIds.length} vectors for file ${fileName}`)
 
   return insertedId as FileId
